@@ -72,6 +72,7 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
+#Travis Mewborne 2/21/2022
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
@@ -87,7 +88,79 @@ def depthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    """
+    Methods available under searchAgents.py/PositionSearchProblem
+        Useful Methods:
+        problem.getStartState()    -> returns the initial state
+        problem.isGoalState(state) -> returns if the state passed in is the goal state
+        problem.getSuccessors      -> returns list of children states
+
+        Good to know:
+        state       -> (xpos,ypos)
+        branch      -> (state,action,weight)
+    """
+
+
+    print("[search.py/depthFirstSearch] Start:",               problem.getStartState())
+    print("[search.py/depthFirstSearch] Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    print("[search.py/depthFirstSearch] Start's successors:",  problem.getSuccessors(problem.getStartState()))
+    #print(Actions.directionToVector(Directions.NORTH))
+
+    #startBranch = (problem.getStartState(),'',0)
+
+    path = depthFirstSearchHelper(problem,  problem.getStartState(),  [],  [],  0, 0)
+    print("[search.py/depthFirstSearch] path found: ", path)
+    #depthFirstSearchHelper(problem,)
+
+    return path[1]
+    #util.raiseNotDefined()
+
+
+#Travis Mewborne 2/21/2022
+def depthFirstSearchHelper(problem,node,visited,path,pathWeight,depthlevel): #node,visited,weightToVisit,directionToVisit):
+#The actual searching happens here
+    if problem.isGoalState(node): #Base case 1 -> goal state
+        return (pathWeight,True,path)
+
+    if node in visited: #Base Case 2 -> Already been here
+        return (pathWeight,False,path)
+
+    visited.append(node)
+
+    bestPath = (-1,False,[])
+    branches = problem.getSuccessors(node)
+
+    for newBranch in branches:
+        child, direction, weight = newBranch[0], newBranch[1], newBranch[2]
+        newPath = path.copy()
+        newPath.append(direction)
+        childPath = depthFirstSearchHelper(problem,child,visited,newPath,pathWeight+weight,depthlevel+1)
+        #print(newPath)
+
+        childPathWeight = childPath[0]
+        childGoalFound = childPath[1]
+        bestPathWeight = bestPath[0]
+        bestPathGoalFound = bestPath[1]
+        isBetter = (bestPathWeight ==-1) or (childGoalFound and childPathWeight <= bestPathWeight) or (childGoalFound and not bestPathGoalFound)
+
+        for i in range(depthlevel):
+            print("|", end="")
+
+        if isBetter:
+            print(depthlevel,"    \x1b[32m",childPath, "\x1b[0m vs \x1b[31m", bestPath)
+        else:
+            print(depthlevel,"    \x1b[31m",childPath, "\x1b[0m vs \x1b[32m", bestPath)
+
+        print("\x1b[0m",end="")
+        #print("\tgoalFound\t",goalFound)
+        #print("\tbetter?\t\t",isBetter,"\tcpw=",childPathWeight,"  bpw=",bestPathWeight)
+        if isBetter:
+            bestPath=childPath 
+        #print("analyzing ", child)
+        #print("childschilds ",problem.getSuccessors(child[0]))
+    return bestPath
+
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
