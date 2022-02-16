@@ -87,7 +87,6 @@ def depthFirstSearch(problem):
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
-    "*** YOUR CODE HERE ***"
 
     """
     Methods available under searchAgents.py/PositionSearchProblem
@@ -99,77 +98,149 @@ def depthFirstSearch(problem):
         Good to know:
         state       -> (xpos,ypos)
         branch      -> (state,action,weight)
+
+
+    Stack element (path) format: [node, leadsToGoal, visited, directions, weight]
+        node        -> the current node, stored as                                  -> (int xpos, int ypos)
+        leadsToGoal -> whether or not the path ends at the goal                     -> Boolean goal
+        visited     -> nodes that have already been explored alone the current path -> [(int xpos, int ypos)]
+        directions  -> a list of actions to the current node                        -> [(string action)]
+        weight      -> how expensive the path is                                    -> int weight
     """
-    startState=problem.getStartState()      #Initial state
-    visited=[]                              #Visited starting
-    path=[]                                 #Path starting
-    pathWeight=0                            #How expensive is the path? (cost)
-    depthLevel=0                            #For tree printing purposes
 
-    print("[search.py/depthFirstSearch] Generating path...",end="")
-    path = depthFirstSearchHelper(problem,  startState,  visited,  path,  pathWeight, depthLevel)
-    print("\x1b[32mDone\x1b[0m")
-    print("[search.py/depthFirstSearch] Final Path: ", pathString(path))
-    #depthFirstSearchHelper(problem,)
+    #Change this to switch between methods. 
+    # "True"  will use global visitors     (faster, high cost solution possible)
+    # "False" will use individual visitors (slower, lowest cost solution)
+    globalVisitors = True
 
-    return path[2]
-    #util.raiseNotDefined()
+    print("[search.py/depthFirstSearch] Generating path using a stack and \x1b[34m",end="")
+
+    if globalVisitors:
+        print("global visitors\x1b[0m...")
+    else:
+        print("individual visitors\x1b[0m...")
+
+    path=[]
+
+    if globalVisitors:
+         path=depthFirstSearchGlobalVisitor(problem)
+    else:
+         path=depthFirstSearchIndividualVisitor(problem)
+
+    node = path[0]
+    leadsToGoal = path[1]
+    visited=path[2]
+    directions=path[3]
+    weight=path[4]
+
+    print("[search.py/depthFirstSearch] Generated the following:")
+    print("[search.py/depthFirstSearch] \t Goal Found?\t ",end="")
+    if leadsToGoal:
+        print("\x1b[32mYes\x1b[0m")
+    else:
+        print("\x1b[31mNo\x1b[0m")
+    print("[search.py/depthFirstSearch] \t # Directions?\t", str(len(directions)))
+    print("[search.py/depthFirstSearch] \t Weight?\t", str(weight))
+
+    return directions
 
 
-#Travis Mewborne 2/15/2022
-#The actual searching happens here
-#TODO i need to add a stack/queue, apparently the autograder won't work without one of these data structures
-def depthFirstSearchHelper(problem,node,visited,path,pathWeight,depthlevel): #node,visited,weightToVisit,directionToVisit):
+#Travis Mewborne 2/16/21
+#This method is slow but provides the lowest cost answer
+def depthFirstSearchIndividualVisitor(problem):
+    """    
+    Stack element (path) format: [node, leadsToGoal, visited, directions, weight]
+        node        -> the current node, stored as                                  -> (int xpos, int ypos)
+        leadsToGoal -> whether or not the path ends at the goal                     -> Boolean goal
+        visited     -> nodes that have already been explored alone the current path -> [(int xpos, int ypos)]
+        directions  -> a list of actions to the current node                        -> [(string action)]
+        weight      -> how expensive the path is                                    -> int weight
+    """
 
-    verbose=False #whether or not to print the tree
+    s = util.Stack()
 
-    if problem.isGoalState(node): #Base case 1 -> goal state
-        return (pathWeight,True,path)
+    bestPath = [problem.getStartState(), False, [], [], 0]
+    s.push(bestPath)
+    counter=0
+    while not s.isEmpty():
+        counter+=1
+        #Pop the top node
+        path = s.pop()
+        node = path[0]
+        leadsToGoal = path[1]
+        visited=path[2]
+        directions=path[3]
+        weight=path[4]
 
-    if node in visited: #Base Case 2 -> Already been here
-        """TODO
-            I believe there is a bug in this part of the code. When running with medium maze, pacman takes longest posible route,
-            i think that this is because the already visited nodes are ignored even if they provide a better path       
-        """
-        return (pathWeight,False,path)
-
-    visited.append(node)
-
-    bestPath = (-1,False,[])
-    branches = problem.getSuccessors(node)
-
-    for newBranch in branches:
-        #Find a new path
-        child, direction, weight = newBranch[0], newBranch[1], newBranch[2]
-        newPath = path.copy()
-        newPath.append(direction)
-        childPath = depthFirstSearchHelper(problem,child,visited,newPath,pathWeight+weight,depthlevel+1)
-
-        #Determine the better path
-        childPathWeight = childPath[0]
-        childGoalFound = childPath[1]
-        bestPathWeight = bestPath[0]
-        bestPathGoalFound = bestPath[1]
-        isBetter = (bestPathWeight ==-1) or (childGoalFound and childPathWeight < bestPathWeight) or (childGoalFound and not bestPathGoalFound)
-
-        #Print tree
-        if verbose:
-            for i in range(depthlevel):
-                print("|", end="")
-            if isBetter:
-                print(depthlevel,"    \x1b[32m",childPath, "\x1b[0m vs \x1b[31m", bestPath)
-            else:
-                print(depthlevel,"    \x1b[31m",childPath, "\x1b[0m vs \x1b[32m", bestPath)
-
-            print("\x1b[0m",end="")
-
-        #Update bestPath
+        #Determine if this is the best path thus far (and replace if necessary)
+        bestPathLeadsToGoal = bestPath[1]
+        bestPathWeight = bestPath[4]
+        isBetter = (not bestPathLeadsToGoal and leadsToGoal) or (leadsToGoal and weight<bestPathWeight)
         if isBetter:
-            bestPath=childPath 
+            bestPath=path
 
-    #Return final path
+        #If this is not a goal state, push each child that has not been visited
+        if not leadsToGoal:
+            for branch in problem.getSuccessors(node):
+                nodeChild=branch[0]
+                if not nodeChild in visited: #Don't push an existing node
+                    isGoal = problem.isGoalState(nodeChild)
+                    directionChild=branch[1]
+                    weightChild=branch[2]
+                    visitedChild=visited.copy()
+                    visitedChild.append(node)
+                    directionsChild=directions.copy()
+                    directionsChild.append(directionChild)
+                    s.push([nodeChild,isGoal,visitedChild,directionsChild,(weight+weightChild)])
     return bestPath
 
+#Travis Mewborne 2/16/21
+#This method is fast but may not provide the lowest cost answer
+def depthFirstSearchGlobalVisitor(problem):
+    """        
+    Stack element (path) format: [node, leadsToGoal, directions, weight]
+        node        -> the current node, stored as                                  -> (int xpos, int ypos)
+        leadsToGoal -> whether or not the path ends at the goal                     -> Boolean goal
+        directions  -> a list of actions to the current node                        -> [(string action)]
+        weight      -> how expensive the path is                                    -> int weight
+    """
+    s = util.Stack()
+    visited = []
+    bestPath = [problem.getStartState(), False, [], 0]
+    s.push(bestPath)
+    counter=0
+    while not s.isEmpty():
+        counter+=1
+        #Pop the top node
+        path = s.pop()
+        node = path[0]
+        leadsToGoal = path[1]
+        directions=path[2]
+        weight=path[3]
+
+        #Determine if this is the best path thus far (and replace if necessary)
+        bestPathLeadsToGoal = bestPath[1]
+        bestPathWeight = bestPath[3]
+        isBetter = (not bestPathLeadsToGoal and leadsToGoal) or (leadsToGoal and weight<bestPathWeight)
+        if isBetter:
+            bestPath=path
+
+        #If this is not a goal state, push each child that has not been visited
+        if not leadsToGoal:
+            for branch in problem.getSuccessors(node):
+                nodeChild=branch[0]
+                if not nodeChild in visited: #Don't push an existing node
+                    isGoal = problem.isGoalState(nodeChild)
+                    directionChild=branch[1]
+                    weightChild=branch[2]
+                    directionsChild=directions.copy()
+                    directionsChild.append(directionChild)
+                    visited.append(nodeChild)
+                    s.push([nodeChild,isGoal,directionsChild,(weight+weightChild)])
+    return [bestPath[0],bestPath[1],visited,bestPath[2],bestPath[3]]
+
+
+"""
 #Travis Mewborne 2/15/22
 def pathString(path):
     red =   "\x1b[31m"
@@ -193,7 +264,7 @@ def pathString(path):
 
     #directions = "".join(["Directions: ", str(path[2])])
     s="".join([cost,goal,directions])
-    return s
+    return s"""
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
