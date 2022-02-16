@@ -72,7 +72,7 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
-#Travis Mewborne 2/21/2022
+#Travis Mewborne 2/15/2022
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
@@ -100,30 +100,37 @@ def depthFirstSearch(problem):
         state       -> (xpos,ypos)
         branch      -> (state,action,weight)
     """
+    startState=problem.getStartState()      #Initial state
+    visited=[]                              #Visited starting
+    path=[]                                 #Path starting
+    pathWeight=0                            #How expensive is the path? (cost)
+    depthLevel=0                            #For tree printing purposes
 
-
-    print("[search.py/depthFirstSearch] Start:",               problem.getStartState())
-    print("[search.py/depthFirstSearch] Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("[search.py/depthFirstSearch] Start's successors:",  problem.getSuccessors(problem.getStartState()))
-    #print(Actions.directionToVector(Directions.NORTH))
-
-    #startBranch = (problem.getStartState(),'',0)
-
-    path = depthFirstSearchHelper(problem,  problem.getStartState(),  [],  [],  0, 0)
-    print("[search.py/depthFirstSearch] path found: ", path)
+    print("[search.py/depthFirstSearch] Generating path...",end="")
+    path = depthFirstSearchHelper(problem,  startState,  visited,  path,  pathWeight, depthLevel)
+    print("\x1b[32mDone\x1b[0m")
+    print("[search.py/depthFirstSearch] Final Path: ", pathString(path))
     #depthFirstSearchHelper(problem,)
 
-    return path[1]
+    return path[2]
     #util.raiseNotDefined()
 
 
-#Travis Mewborne 2/21/2022
-def depthFirstSearchHelper(problem,node,visited,path,pathWeight,depthlevel): #node,visited,weightToVisit,directionToVisit):
+#Travis Mewborne 2/15/2022
 #The actual searching happens here
+#TODO i need to add a stack/queue, apparently the autograder won't work without one of these data structures
+def depthFirstSearchHelper(problem,node,visited,path,pathWeight,depthlevel): #node,visited,weightToVisit,directionToVisit):
+
+    verbose=False #whether or not to print the tree
+
     if problem.isGoalState(node): #Base case 1 -> goal state
         return (pathWeight,True,path)
 
     if node in visited: #Base Case 2 -> Already been here
+        """TODO
+            I believe there is a bug in this part of the code. When running with medium maze, pacman takes longest posible route,
+            i think that this is because the already visited nodes are ignored even if they provide a better path       
+        """
         return (pathWeight,False,path)
 
     visited.append(node)
@@ -132,35 +139,61 @@ def depthFirstSearchHelper(problem,node,visited,path,pathWeight,depthlevel): #no
     branches = problem.getSuccessors(node)
 
     for newBranch in branches:
+        #Find a new path
         child, direction, weight = newBranch[0], newBranch[1], newBranch[2]
         newPath = path.copy()
         newPath.append(direction)
         childPath = depthFirstSearchHelper(problem,child,visited,newPath,pathWeight+weight,depthlevel+1)
-        #print(newPath)
 
+        #Determine the better path
         childPathWeight = childPath[0]
         childGoalFound = childPath[1]
         bestPathWeight = bestPath[0]
         bestPathGoalFound = bestPath[1]
-        isBetter = (bestPathWeight ==-1) or (childGoalFound and childPathWeight <= bestPathWeight) or (childGoalFound and not bestPathGoalFound)
+        isBetter = (bestPathWeight ==-1) or (childGoalFound and childPathWeight < bestPathWeight) or (childGoalFound and not bestPathGoalFound)
 
-        for i in range(depthlevel):
-            print("|", end="")
+        #Print tree
+        if verbose:
+            for i in range(depthlevel):
+                print("|", end="")
+            if isBetter:
+                print(depthlevel,"    \x1b[32m",childPath, "\x1b[0m vs \x1b[31m", bestPath)
+            else:
+                print(depthlevel,"    \x1b[31m",childPath, "\x1b[0m vs \x1b[32m", bestPath)
 
-        if isBetter:
-            print(depthlevel,"    \x1b[32m",childPath, "\x1b[0m vs \x1b[31m", bestPath)
-        else:
-            print(depthlevel,"    \x1b[31m",childPath, "\x1b[0m vs \x1b[32m", bestPath)
+            print("\x1b[0m",end="")
 
-        print("\x1b[0m",end="")
-        #print("\tgoalFound\t",goalFound)
-        #print("\tbetter?\t\t",isBetter,"\tcpw=",childPathWeight,"  bpw=",bestPathWeight)
+        #Update bestPath
         if isBetter:
             bestPath=childPath 
-        #print("analyzing ", child)
-        #print("childschilds ",problem.getSuccessors(child[0]))
+
+    #Return final path
     return bestPath
 
+#Travis Mewborne 2/15/22
+def pathString(path):
+    red =   "\x1b[31m"
+    green = "\x1b[32m"
+    reset = "\x1b[0m"
+    cost = "".join(["Cost: ",str(path[0]), " | "])
+
+    if path[1]:
+        goal = "".join([green,"Goal Found!"])
+    else:
+        goal = "".join([red,"Goal not found."])
+
+    goal = "".join([goal,reset," | "])
+
+    directions="Directions: "
+    if (len(path[2])>10):
+        directions = "".join([directions,str(len(path[2]))])
+    else:
+        directions = "".join([directions,str(path[2])])
+
+
+    #directions = "".join(["Directions: ", str(path[2])])
+    s="".join([cost,goal,directions])
+    return s
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
