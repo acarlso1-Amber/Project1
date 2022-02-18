@@ -118,6 +118,8 @@ def depthFirstSearch(problem):
         print("[search.py/depthFirstSearch] Verbose Mode Enabled")
         print("[search.py/depthFirstSearch] Generating DFS path...")
 
+    #exploreTheTree(problem,problem.getStartState(),[])
+
 
     s = util.Stack()
 
@@ -142,7 +144,7 @@ def depthFirstSearch(problem):
         #Determine if this is the best path thus far (and replace if necessary)
         bestPathLeadsToGoal = bestPath[1]
         bestPathWeight = bestPath[4]
-        isBetter = (not bestPathLeadsToGoal and leadsToGoal) or (leadsToGoal and weight<bestPathWeight)
+        isBetter = (not bestPathLeadsToGoal and leadsToGoal) #or (leadsToGoal and weight<bestPathWeight)
         if isBetter:
             bestPath=path
 
