@@ -120,10 +120,9 @@ def depthFirstSearch(problem):
 
     #exploreTheTree(problem,problem.getStartState(),[])
 
-
     s = util.Stack()
 
-    bestPath = [problem.getStartState(), False, [], [], 0] #Default path
+    bestPath = [problem.getStartState(), False, [], []] #Default path
     s.push(bestPath)
     goalHasBeenFound=False
     counter=0
@@ -136,15 +135,13 @@ def depthFirstSearch(problem):
         leadsToGoal = path[1]
         visited=path[2]
         directions=path[3]
-        weight=path[4]
 
         if leadsToGoal:
             goalHasBeenFound=True
 
         #Determine if this is the best path thus far (and replace if necessary)
         bestPathLeadsToGoal = bestPath[1]
-        bestPathWeight = bestPath[4]
-        isBetter = (not bestPathLeadsToGoal and leadsToGoal) #or (leadsToGoal and weight<bestPathWeight)
+        isBetter = (not bestPathLeadsToGoal and leadsToGoal)
         if isBetter:
             bestPath=path
 
@@ -152,7 +149,6 @@ def depthFirstSearch(problem):
         if not (leadsToGoal or goalHasBeenFound):
             for branch in problem.getSuccessors(node):
                 nodeChild=branch[0]
-                weightChild=branch[2]
                 #print(node,"->",nodeChild," - move cost is ",weightChild," - total cost is ",weight+weightChild)
                 if not nodeChild in visited: #Don't push an existing node
                     isGoal = problem.isGoalState(nodeChild)
@@ -161,7 +157,7 @@ def depthFirstSearch(problem):
                     visitedChild.append(node)
                     directionsChild=directions.copy()
                     directionsChild.append(directionChild)
-                    s.push([nodeChild,isGoal,visitedChild,directionsChild,(weight+weightChild)])
+                    s.push([nodeChild,isGoal,visitedChild,directionsChild])
 
     """
         End Main Algorithm
@@ -171,7 +167,6 @@ def depthFirstSearch(problem):
     leadsToGoal = bestPath[1]
     visited=bestPath[2]
     directions=bestPath[3]
-    weight=bestPath[4]
 
     if verboseMode:
         print("[search.py/depthFirstSearch] Generated the following after", counter, "iterations:")
@@ -181,7 +176,6 @@ def depthFirstSearch(problem):
         else:
             print("\x1b[31mNo\x1b[0m")
         print("[search.py/depthFirstSearch] --- # Directions? --", str(len(directions)))
-        print("[search.py/depthFirstSearch] --- Weight? --------", str(weight))
 
     return directions
 
