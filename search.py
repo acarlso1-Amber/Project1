@@ -204,7 +204,7 @@ def breadthFirstSearch(problem):
     directions = util.Stack()
 
     #loops through fringe
-    while not q.isEmpty():
+    while not q.isEmpty() and not found:
 
         #pop next node
         currentNode = q.pop()
@@ -215,15 +215,14 @@ def breadthFirstSearch(problem):
             #print("parents: ", parents)
             found = True
             goal = currentNode
-            exit
-        
+        else:        
         #otherwise, add children to fringe if they have not already been visited
-        for child in problem.getSuccessors(currentNode):
-            if not child[0] in visited:
-                q.push(child[0])
+            for child in problem.getSuccessors(currentNode):
+                if not child[0] in visited:
+                    q.push(child[0])
 
-                visited.append(child[0])
-                childInfo[child[0]] = (currentNode, child[1])   #(parent, action)
+                    visited.append(child[0])
+                    childInfo[child[0]] = (currentNode, child[1])   #(parent, action)
                 
 
     if not found:
@@ -244,6 +243,7 @@ def breadthFirstSearch(problem):
                 #print(directions.pop())
     return path
     #util.raiseNotDefined()
+    
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
