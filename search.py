@@ -92,8 +92,57 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
 
+    q = util.Queue()
+    q.push(problem.getStartState())
+    visited = [problem.getStartState()]
+    goal = problem.getStartState()
+    found = False
+    path = []
+    childInfo = {}
+    directions = util.Stack()
+
+    #loops through fringe
+    while not q.isEmpty():
+
+        #pop next node
+        currentNode = q.pop()
+
+        #stop if goal is found
+        if problem.isGoalState(currentNode):
+            #print("Goal found")
+            #print("parents: ", parents)
+            found = True
+            goal = currentNode
+            exit
+        
+        #otherwise, add children to fringe if they have not already been visited
+        for child in problem.getSuccessors(currentNode):
+            if not child[0] in visited:
+                q.push(child[0])
+
+                visited.append(child[0])
+                childInfo[child[0]] = (currentNode, child[1])   #(parent, action)
+                
+
+    if not found:
+        print("Error: Goal Not Found")
+    else:   #find path back
+        count = 0
+        while not goal == problem.getStartState() or count > 1000:
+            directions.push(childInfo[goal][1])
+            goal = childInfo[goal][0]
+            count+=1
+        if count > 1000:
+            print("Error: Path not found")
+        else:
+            while not directions.isEmpty():
+                step = directions.pop()
+                path.append(step)
+                #print(step)
+                #print(directions.pop())
+    return path
+    #util.raiseNotDefined()
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
