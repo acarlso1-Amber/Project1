@@ -244,9 +244,46 @@ def breadthFirstSearch(problem):
     return path
     #util.raiseNotDefined()
     
+    
+#Wen Lee 2/18/22 
 def uniformCostSearch(problem):
-    """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
+    """Search the node of least total cost first.
+    
+    By changing the cost function, we can make Pacman find different paths 
+    """
+
+    #start Node 
+    nodeZero = problem.getStartState()
+    visitedNodes = []
+
+    pq = util.PriorityQueue()
+    goalHasBeenFound = False 
+    goal = nodeZero
+    
+    #We are pushing the very first state onto the priorityQueue so we have something 
+    #to start with
+        #push(self, item(state, action, priority), priority)
+    pq.push((nodeZero, [], 0), 0)
+
+    while not pq.isEmpty():
+
+        #pattern match the node popped from the queue
+        currentNode, action, stepCost = pq.pop()
+        if currentNode not in visitedNodes:
+            visitedNodes.append(currentNode)
+
+            if problem.isGoalState(currentNode):
+                #goalHasBeenFound = True 
+                #goal = currentNode
+                return action
+                    #returning the action gets rid of the long if-else block for when the goalHasBeenFound turns out to be true 
+                    #I'm not sure if we really need to add goalHasBeenFound or goal to this part of the code anymore. 
+            
+            #pattern matching within for block 
+            for successorNodes, actions, nextCosts in problem.getSuccessors(currentNode):
+                newAction = action + [actions]
+                priority = stepCost + nextCosts
+                pq.push((successorNodes, newAction, priority),priority)
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
