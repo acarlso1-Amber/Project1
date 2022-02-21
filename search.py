@@ -294,7 +294,7 @@ def nullHeuristic(state, problem=None):
     return 0
 #jackson 2-21-2022 (feel kinda bad cause I just straight up booted the code, I literally had to change one line)
 def aStarSearch(problem, heuristic=nullHeuristic):
-    """Search the node that has the lowest combined cost and heuristic first."""
+    """Search the node that has thpython3.7 autografer.pye lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
     nodeZero = problem.getStartState()
     visitedNodes = []
@@ -327,8 +327,9 @@ def aStarSearch(problem, heuristic=nullHeuristic):
             for successorNodes, actions, nextCosts in problem.getSuccessors(currentNode):
                 newAction = action + [actions]
                 #modified priority for how A* works, think this is correct
-                priority = stepCost + nextCosts + heuristic(successorNodes,problem)
-                pq.push((successorNodes, newAction, priority),priority)
+                priority = stepCost + nextCosts 
+                hur = heuristic(successorNodes,problem)
+                pq.push((successorNodes, newAction, priority),priority + hur)
     util.raiseNotDefined()
 
 
