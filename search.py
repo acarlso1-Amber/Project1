@@ -292,10 +292,44 @@ def nullHeuristic(state, problem=None):
     goal in the provided SearchProblem.  This heuristic is trivial.
     """
     return 0
-
+#jackson 2-21-2022 (feel kinda bad cause I just straight up booted the code, I literally had to change one line)
 def aStarSearch(problem, heuristic=nullHeuristic):
-    """Search the node that has the lowest combined cost and heuristic first."""
+    """Search the node that has thpython3.7 autografer.pye lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
+    nodeZero = problem.getStartState()
+    visitedNodes = []
+
+    pq = util.PriorityQueue()
+    goalHasBeenFound = False 
+    goal = nodeZero
+    
+    #We are pushing the very first state onto the priorityQueue so we have something 
+    #to start with
+        #push(self, item(state, action, priority), priority)
+    pq.push((nodeZero, [], 0), 0)
+
+    while not pq.isEmpty():
+
+        #pattern match the node popped from the queue
+        currentNode, action, stepCost = pq.pop()
+        if currentNode not in visitedNodes:
+            visitedNodes.append(currentNode)
+
+            if problem.isGoalState(currentNode):
+                #goalHasBeenFound = True 
+                #goal = currentNode
+                return action
+                    #returning the action gets rid of the long if-else block for when the goalHasBeenFound turns out to be true 
+                    #I'm not sure if we really need to add goalHasBeenFound or goal to this part of the code anymore. 
+            
+            #pattern matching within for block 
+
+            for successorNodes, actions, nextCosts in problem.getSuccessors(currentNode):
+                newAction = action + [actions]
+                #modified priority for how A* works, think this is correct
+                priority = stepCost + nextCosts 
+                hur = heuristic(successorNodes,problem)
+                pq.push((successorNodes, newAction, priority),priority + hur)
     util.raiseNotDefined()
 
 
