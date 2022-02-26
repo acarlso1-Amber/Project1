@@ -190,59 +190,51 @@ def exploreTheTree(problem,node,printed):
     for kid in kids:
         exploreTheTree(problem,kid[0],printed)
 
+#Amber Carlson
+#BFS: 2/18/21
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
+    # path = [node, leadsToGoal, recentlyVisited, visited, directions]
 
     q = util.Queue()
-    q.push(problem.getStartState())
-    visited = [problem.getStartState()]
-    goal = problem.getStartState()
-    found = False
-    path = []
-    childInfo = {}
-    directions = util.Stack()
+    currentNode = problem.getStartState()
+    problem.currentPath = [currentNode, False, [], [], []]
+    q.push(problem.currentPath)
+    count, maxCount, found = 0, 1000000, False
+    problem.breadCrumbs = []
+    problem.allowDups = False   # toggles whether the Corners Problem can have repeated states in different paths
 
-    #loops through fringe
-    while not q.isEmpty() and not found:
+    while (not q.isEmpty()) and (not found) and (count < maxCount):
+        count += 1
+        problem.currentPath = q.pop()
+        currentNode = problem.currentPath[0]
+        problem.getStartState() # skeevy way to reset the bread crumbs in Corners Problem
+        # print("currentPath: ", problem.currentPath)
 
-        #pop next node
-        currentNode = q.pop()
-
-        #stop if goal is found
-        if problem.isGoalState(currentNode):
-            #print("Goal found")
-            #print("parents: ", parents)
+        # base case
+        if problem.isGoalState(currentNode):    # clears recentlyVisited if a new Corner is found
             found = True
-            goal = currentNode
-        else:        
-        #otherwise, add children to fringe if they have not already been visited
-            for child in problem.getSuccessors(currentNode):
-                if not child[0] in visited:
-                    q.push(child[0])
-
-                    visited.append(child[0])
-                    childInfo[child[0]] = (currentNode, child[1])   #(parent, action)
-                
-
-    if not found:
-        print("Error: Goal Not Found")
-    else:   #find path back
-        count = 0
-        while not goal == problem.getStartState() or count > 1000:
-            directions.push(childInfo[goal][1])
-            goal = childInfo[goal][0]
-            count+=1
-        if count > 1000:
-            print("Error: Path not found")
+            problem.currentPath[1] = True
         else:
-            while not directions.isEmpty():
-                step = directions.pop()
-                path.append(step)
-                #print(step)
-                #print(directions.pop())
-    return path
-    #util.raiseNotDefined()
+            # add children to fringe
+            for child in problem.getSuccessors(currentNode):    # child = ( nextState, action, cost)
+                recentlyVisited = problem.currentPath[2] + [currentNode]
+                if not child[0] in recentlyVisited and not child[0] in problem.breadCrumbs:
+                    # print("adding child: ", child)
+                    problem.breadCrumbs.append(child[0])
+                    visited = problem.currentPath[3] + [currentNode]
+                    action = (child[1])
+                    directions = problem.currentPath[4] + [action]
+                    q.push([child[0], False, recentlyVisited, visited, directions])
+        # input()
+        
+    if not problem.currentPath[1]:
+        print("Error: goal not found after examining: ", count, " states")
+    
+    # print("finished path: ", problem.currentPath[4])
+    # print("finished visited: ", problem.currentPath[3])
+    return problem.currentPath[4]
+
     
     
 #Wen Lee 2/18/22 

@@ -34,6 +34,8 @@ description for details.
 Good luck and happy searching!
 """
 
+from ctypes import sizeof
+from queue import Empty
 from game import Directions
 from game import Agent
 from game import Actions
@@ -265,7 +267,7 @@ def euclideanHeuristic(position, problem, info={}):
 #####################################################
 # This portion is incomplete.  Time to write code!  #
 #####################################################
-
+# Amber Carlson 2/25/21
 class CornersProblem(search.SearchProblem):
     """
     This search problem finds paths through all four corners of a layout.
@@ -288,6 +290,9 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
+        self.currentPath = []        # path = [node, leadsToGoal, recentlyVisited, visited, directions]
+        self.breadCrumbs = []
+        self.allowDups = True
 
     def getStartState(self):
         """
@@ -295,15 +300,37 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        if self.allowDups:
+            self.breadCrumbs = []
+        return self.startingPosition
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
 
+        isGoal = True
+        recentlyVisited, visited = self.currentPath[2], self.currentPath[3]
+        for corner in self.corners:
+            if state == corner and not corner in visited:
+                self.currentPath[2] = []
+                self.currentPath[3].append(state)
+                # print("updated currentPath: ", self.currentPath)
+                # cornersFound = []
+                # for c in self.corners:
+                #     if c in visited:
+                #         cornersFound.append(c)
+                # print("corners found: ", cornersFound)
+                # print()
+                # if len(cornersFound) > 3:
+                #     input()
+                return False
+            if not corner in visited:
+                isGoal = False
+        return isGoal
+        
+        
     def getSuccessors(self, state):
         """
         Returns successor states, the actions they require, and a cost of 1.
@@ -325,6 +352,13 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
+            x,y = state
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            if not self.walls[nextx][nexty]:
+                nextState = (nextx, nexty)
+                cost = 1
+                successors.append( ( nextState, action, cost) )
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
