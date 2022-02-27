@@ -180,7 +180,7 @@ def depthFirstSearch(problem):
 
     return directions
 
-#Travis Mewborne 2/17/21
+#Travis Mewborne 2/17/22
 #Useful for exploring the tree setup in testing
 def exploreTheTree(problem,node,printed):
     if node in printed:
