@@ -147,6 +147,7 @@ def depthFirstSearch(problem):
 
         #If this is not a goal state, push each child that has not been visited
         if not (leadsToGoal or goalHasBeenFound):
+            
             for branch in problem.getSuccessors(node):
                 nodeChild=branch[0]
                 #print(node,"->",nodeChild," - move cost is ",weightChild," - total cost is ",weight+weightChild)
