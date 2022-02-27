@@ -36,6 +36,7 @@ Good luck and happy searching!
 
 from ctypes import sizeof
 from queue import Empty
+from tracemalloc import start
 from game import Directions
 from game import Agent
 from game import Actions
@@ -518,8 +519,43 @@ class ClosestDotSearchAgent(SearchAgent):
         walls = gameState.getWalls()
         problem = AnyFoodSearchProblem(gameState)
 
+
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #Travis Mewborne 2-27-2022
+        returnPath  = [] #Path to return on success
+        visited = [] #What nodes have been visited already
+        goalStateFound=False
+
+        q=util.Queue()
+        q.push([startPosition,[]]) #Initial state to explore
+
+        #While no goal state has been found and there is data in the queue
+        while(not goalStateFound and not q.isEmpty()): 
+            currentState=q.pop() #[(x,y),[action]]
+            position=currentState[0]
+            positionPath = currentState[1]
+            children = problem.getSuccessors(position)
+            for child in children:
+                childLocation = child[0] #Where it is
+                action = child[1] #How to access
+                newPath = positionPath.copy()
+                newPath.append(action)
+
+                #If we haven't already been here
+                if not child in visited:
+                    #Check if it's the goal
+                    if problem.isGoalState(childLocation):
+                        #Set return value and cancel while loop
+                        goalStateFound=True
+                        returnPath = newPath
+                    #Add it to the queue
+                    else:
+                        #Add to visit later
+                        q.push([childLocation,newPath])
+                        visited.append(child)
+
+        return returnPath #for some reason, this returns a slightly shorter path than returning from within the loop
+
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -555,7 +591,8 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #Travis Mewborne 2-27-2022
+        return self.food[x][y]
 
 def mazeDistance(point1, point2, gameState):
     """
