@@ -195,6 +195,7 @@ def exploreTheTree(problem,node,printed):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     # path = [node, leadsToGoal, recentlyVisited, visited, directions]
+    # print("start state: ", problem.getStartState())
 
     q = util.Queue()
     currentNode = problem.getStartState()
@@ -202,14 +203,13 @@ def breadthFirstSearch(problem):
     q.push(problem.currentPath)
     count, maxCount, found = 0, 1000000, False
     problem.breadCrumbs = []
-    problem.allowDups = False   # toggles whether the Corners Problem can have repeated states in different paths
+    problem.allowDups = True   # toggles whether the Corners Problem can have repeated states in different paths
 
     while (not q.isEmpty()) and (not found) and (count < maxCount):
         count += 1
         problem.currentPath = q.pop()
         currentNode = problem.currentPath[0]
         problem.getStartState() # skeevy way to reset the bread crumbs in Corners Problem
-        # print("currentPath: ", problem.currentPath)
 
         # base case
         if problem.isGoalState(currentNode):    # clears recentlyVisited if a new Corner is found
@@ -217,12 +217,11 @@ def breadthFirstSearch(problem):
             problem.currentPath[1] = True
         else:
             # add children to fringe
+            recentlyVisited = problem.currentPath[2] + [currentNode]
+            visited = problem.currentPath[3] + [currentNode]
             for child in problem.getSuccessors(currentNode):    # child = ( nextState, action, cost)
-                recentlyVisited = problem.currentPath[2] + [currentNode]
                 if not child[0] in recentlyVisited and not child[0] in problem.breadCrumbs:
-                    # print("adding child: ", child)
-                    problem.breadCrumbs.append(child[0])
-                    visited = problem.currentPath[3] + [currentNode]
+                    problem.breadCrumbs = problem.breadCrumbs + [child[0]]
                     action = (child[1])
                     directions = problem.currentPath[4] + [action]
                     q.push([child[0], False, recentlyVisited, visited, directions])
@@ -231,8 +230,12 @@ def breadthFirstSearch(problem):
     if not problem.currentPath[1]:
         print("Error: goal not found after examining: ", count, " states")
     
-    # print("finished path: ", problem.currentPath[4])
-    # print("finished visited: ", problem.currentPath[3])
+
+    # prints path taken for testing    
+    # i = 0
+    # while i < len(problem.currentPath[4]):
+    #     print("leave ", problem.currentPath[3][i], " and go ", problem.currentPath[4][i])
+    #     i += 1
     return problem.currentPath[4]
 
     
