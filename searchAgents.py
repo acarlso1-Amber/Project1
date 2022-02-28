@@ -303,7 +303,7 @@ class CornersProblem(search.SearchProblem):
         """
         "*** YOUR CODE HERE ***"
         if self.allowDups:
-            self.breadCrumbs = []
+            self.breadCrumbs = []   # allows the CornersProblem to backtrack by keeping the breadCrumbs empty
         return self.startingPosition
 
     def isGoalState(self, state):
@@ -316,20 +316,15 @@ class CornersProblem(search.SearchProblem):
         recentlyVisited, visited = self.currentPath[2], self.currentPath[3]
         for corner in self.corners:
             if state == corner and not corner in visited:
-                self.currentPath[2] = []
-                self.currentPath[3].append(state)
-                # print("updated currentPath: ", self.currentPath)
-                # cornersFound = []
-                # for c in self.corners:
-                #     if c in visited:
-                #         cornersFound.append(c)
-                # print("corners found: ", cornersFound)
-                # print()
-                # if len(cornersFound) > 3:
-                #     input()
+                self.currentPath[2] = []    # resets recentlyVisited to allow backtracking
                 return False
             if not corner in visited:
                 isGoal = False
+                
+        # corrects off-by-one error
+        if isGoal:
+            self.currentPath[4].pop()
+
         return isGoal
         
         
