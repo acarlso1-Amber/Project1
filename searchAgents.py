@@ -40,6 +40,7 @@ from game import Actions
 import util
 import time
 import search
+import math
 
 class GoWestAgent(Agent):
     "An agent that goes West until it can't."
@@ -452,9 +453,70 @@ def foodHeuristic(state, problem):
     Subsequent calls to this heuristic can access
     problem.heuristicInfo['wallCount']
     """
+   
     position, foodGrid = state
+    x,y = position
+    newVal = 0
+    if len(problem.heuristicInfo) >= 1:
+        #dx,dy = problem.heuristicInfo['dir']
+        #ox,oy = problem.heuristicInfo['oldDir']
+        #if (ox != dx & dx != x) & (oy == dy & dy == y):
+           # newVal+=1
+       # elif (ox == dx & dx == x) & (oy != dy & dy != y):
+           # newVal+=1
+        clo = closestFood(x,y,foodGrid,problem,problem.heuristicInfo['state'])
+        #if (mazeDistance((x,y),clo,problem.heuristicInfo['state'])) < (mazeDistance((dx,dy),clo,problem.heuristicInfo['state'])):
+        newVal += clo
+        #if (x+1,y) in foodGrid.asList() :
+        #   newVal+= 50
+        #if (x-1,y) in foodGrid.asList() :
+        #    newVal+= 50
+        #if (x,y+1) in foodGrid.asList() :
+        #    newVal+= 50
+        #if (x,y-1) in foodGrid.asList() :
+        #    newVal+= 50
+        #if(x,y) in foodGrid.asList():
+        #    newVal+=50
+    #elif len(problem.heuristicInfo) == 2:
+        #problem.heuristicInfo['oldDir'] = problem.heuristicInfo['dir']
+        #problem.heuristicInfo['dir'] = position
+
+    else :
+        #problem.heuristicInfo['dir'] = position
+        problem.heuristicInfo['state'] = problem.startingGameState
+        clo = closestFood(x,y,foodGrid,problem,problem.heuristicInfo['state'])
+        #if (mazeDistance((x,y),clo,problem.heuristicInfo['state'])) < (mazeDistance((dx,dy),clo,problem.heuristicInfo['state'])):
+        newVal += clo
+        #print(foodGrid.asList())
+   # adds = foodGrid [x+1][y]
+   # adds+= foodGrid[x-1][y]#
+   # adds+= foodGrid[x][y+1]
+    #adds+= foodGrid[x][y-1]
+    #index all directions of food grid around position,use as cost(just to see what it does)
     "*** YOUR CODE HERE ***"
-    return 0
+    return newVal
+
+def closestFood(x,y,foodGrid,wall,state):
+    temp = len(foodGrid.asList())
+    if temp != 0:
+        least = 0
+        #leastP = (0,0)
+        for px,py in foodGrid.asList():
+            mz = mazeDistance((x,y),(px,py),state)
+            #mz = (abs(x - px) + abs(y - py))
+            #mz = math.sqrt(pow(x-px,2) + pow(y-py,2))
+            #least+= max(0, math.ceil(mz / len(foodGrid.asList())))
+            #least += max(0,(100 - (temp +mz)))
+            if(least < mz):
+               least = mz
+
+            #least+= max(0,(100 -mz))
+            #least+=mz
+        #return math.floor((least / len(foodGrid.asList())))
+        return least
+    else :
+        return 0
+
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
