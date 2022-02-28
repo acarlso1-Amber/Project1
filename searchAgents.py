@@ -513,6 +513,7 @@ def closestFood(x,y,foodGrid,wall,state):
             #least+= max(0,(100 -mz))
             #least+=mz
         #return math.floor((least / len(foodGrid.asList())))
+        #this is so iiiiit pushed
         return least
     else :
         return 0
