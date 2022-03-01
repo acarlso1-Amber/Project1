@@ -293,7 +293,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has thpython3.7 autografer.pye lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
     nodeZero = problem.getStartState()
-    visitedNodes = []
+    problem.visitedNodes = []
 
     pq = util.PriorityQueue()
     goalHasBeenFound = False 
@@ -308,8 +308,8 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 
         #pattern match the node popped from the queue
         currentNode, action, stepCost = pq.pop()
-        if currentNode not in visitedNodes:
-            visitedNodes.append(currentNode)
+        if currentNode not in problem.visitedNodes:
+            problem.visitedNodes.append(currentNode)
 
             if problem.isGoalState(currentNode):
                 #goalHasBeenFound = True 
