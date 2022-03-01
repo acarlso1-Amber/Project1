@@ -293,6 +293,7 @@ class CornersProblem(search.SearchProblem):
         self.currentPath = []        # path = [node, leadsToGoal, recentlyVisited, visited, directions]
         self.breadCrumbs = []
         self.allowDups = True
+        self.visitedNodes = []
 
     def getStartState(self):
         """
@@ -310,20 +311,28 @@ class CornersProblem(search.SearchProblem):
         """
         "*** YOUR CODE HERE ***"
 
-        isGoal = True
-        recentlyVisited, visited = self.currentPath[2], self.currentPath[3]
-        for corner in self.corners:
-            if state == corner and not corner in visited:
-                self.currentPath[2] = []    # resets recentlyVisited to allow backtracking
-                return False
-            if not corner in visited:
-                isGoal = False
-                
-        # corrects off-by-one error
-        if isGoal:
-            self.currentPath[4].pop()
+        if self.currentPath:    # for BFS
+            isGoal = True
+            visited = self.currentPath[3]
+            for corner in self.corners:
+                if state == corner and not corner in visited:
+                    self.currentPath[2] = []    # resets recentlyVisited to allow backtracking
+                    return False
+                if not corner in visited:
+                    isGoal = False
+                    
+            # corrects off-by-one error
+            if isGoal:
+                self.currentPath[4].pop()
 
-        return isGoal
+            return isGoal
+
+        else:   # for A*
+            for corner in self.corners:
+                if not corner in self.visitedNodes:
+                    return False
+                else:
+                    return True
         
         
     def getSuccessors(self, state):
