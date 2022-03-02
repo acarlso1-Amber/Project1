@@ -260,6 +260,11 @@ def manhattanHeuristic(position, problem, info={}):
     xy2 = problem.goal
     return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
 
+def manHat(position, state, info={}):
+    xy1 = position
+    xy2 = state
+    return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
+
 def euclideanHeuristic(position, problem, info={}):
     "The Euclidean distance heuristic for a PositionSearchProblem"
     xy1 = position
@@ -276,7 +281,7 @@ class CornersProblem(search.SearchProblem):
 
     You must select a suitable state space and successor function
     """
-
+        
     def __init__(self, startingGameState):
         """
         Stores the walls, pacman's starting position and corners.
@@ -330,11 +335,15 @@ class CornersProblem(search.SearchProblem):
             return isGoal
 
         else:   # for A*
+            stateIsCorner = False
             for corner in self.corners:
+                stateIsCorner = (corner == state) or stateIsCorner
                 if not corner in self.visitedNodes:
                     return False
-                else:
-                    return True
+                # elif stateIsCorner:
+                #     return True
+
+            return True
         
         
     def getSuccessors(self, state):
@@ -400,7 +409,78 @@ def cornersHeuristic(state, problem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+
+    print("these are all the corners")
+    print(corners)
+    visited = problem.visitedNodes #empty list 
+    currentNode = problem.currentNode
+    optimalNode = problem.optimalNode
+
+    bestNode = corners[0] 
+    bestDis = manHat(currentNode, bestNode)
+
+    temp = 4 
+    least = 10000000000
+
+    
+    if ((temp >= 0) and (temp <= 4)): 
+        print("does it eveen get here")
+        for daCorners in corners: 
+            print("within the for loop")
+            currentNodeDis = manHat(currentNode, daCorners)
+            if (currentNodeDis < least): 
+                least = currentNodeDis
+                temp -= 1
+                print("this is the temporary")
+                print(temp)
+        return least 
+    else: 
+        return 0
+
+    return 0 
+
+
+
+    # for daCorner in corners: 
+        #     currentNodeDis = manHat(currentNode, daCorner)
+        #     if currentNodeDis > bestDis: 
+        #         currentNode = bestNode
+        #         temp -= 1
+        #         return currentNode
+
+    #print(currentNode)
+
+    # # while ((set(corners)) == (set(visited))): 
+    # for currentCorner in corners: 
+    #     #print("within the for loop")
+    #     if currentCorner not in visited:
+    #         print(currentCorner)
+    #         #print("currentCorner not in visited") 
+    #         curCorDistance = manHat(currentNode, currentCorner)
+    #         print(curCorDistance)
+    #         if curCorDistance < oCornerDistance: 
+    #             #print("inside the compare if")
+    #             optimalNode = currentCorner
+    #             oCornerDistance = curCorDistance
+    # #print(visited)
+    # #return oCornerDistance
+    # return curCorDistance
+
+    # visited = problem.visitedNodes #empty list 
+    # currentNode = problem.currentNode
+
+    # oCornerDistance = 100000000
+    # for currentCorner in corners: 
+    #     if not currentCorner in visited:
+    #         visited.append(currentCorner)
+    #         cDistance = manhattanHeuristic(currentNode, currentCorner)
+    #         if oCornerDistance > cDistance: 
+    #             oCornerDistance = cDistance
+                
+    #     #return oCornerDistance
+    # print(oCornerDistance)
+    # return oCornerDistance # Default to trivial solution
+
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -428,7 +508,9 @@ class FoodSearchProblem:
         return self.start
 
     def isGoalState(self, state):
-        return state[1].count() == 0
+        ret = state[1].count() == 0
+        print('the current node: ' + str(state))
+        return ret
 
     def getSuccessors(self, state):
         "Returns successor states, the actions they require, and a cost of 1."
@@ -497,41 +579,12 @@ def foodHeuristic(state, problem):
     x,y = position
     newVal = 0
     if len(problem.heuristicInfo) >= 1:
-        #dx,dy = problem.heuristicInfo['dir']
-        #ox,oy = problem.heuristicInfo['oldDir']
-        #if (ox != dx & dx != x) & (oy == dy & dy == y):
-           # newVal+=1
-       # elif (ox == dx & dx == x) & (oy != dy & dy != y):
-           # newVal+=1
         clo = closestFood(x,y,foodGrid,problem,problem.heuristicInfo['state'])
-        #if (mazeDistance((x,y),clo,problem.heuristicInfo['state'])) < (mazeDistance((dx,dy),clo,problem.heuristicInfo['state'])):
         newVal += clo
-        #if (x+1,y) in foodGrid.asList() :
-        #   newVal+= 50
-        #if (x-1,y) in foodGrid.asList() :
-        #    newVal+= 50
-        #if (x,y+1) in foodGrid.asList() :
-        #    newVal+= 50
-        #if (x,y-1) in foodGrid.asList() :
-        #    newVal+= 50
-        #if(x,y) in foodGrid.asList():
-        #    newVal+=50
-    #elif len(problem.heuristicInfo) == 2:
-        #problem.heuristicInfo['oldDir'] = problem.heuristicInfo['dir']
-        #problem.heuristicInfo['dir'] = position
-
     else :
-        #problem.heuristicInfo['dir'] = position
         problem.heuristicInfo['state'] = problem.startingGameState
         clo = closestFood(x,y,foodGrid,problem,problem.heuristicInfo['state'])
-        #if (mazeDistance((x,y),clo,problem.heuristicInfo['state'])) < (mazeDistance((dx,dy),clo,problem.heuristicInfo['state'])):
         newVal += clo
-        #print(foodGrid.asList())
-   # adds = foodGrid [x+1][y]
-   # adds+= foodGrid[x-1][y]#
-   # adds+= foodGrid[x][y+1]
-    #adds+= foodGrid[x][y-1]
-    #index all directions of food grid around position,use as cost(just to see what it does)
     "*** YOUR CODE HERE ***"
     return newVal
 

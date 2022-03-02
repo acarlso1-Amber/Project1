@@ -290,10 +290,11 @@ def nullHeuristic(state, problem=None):
     return 0
 #jackson 2-21-2022 (feel kinda bad cause I just straight up booted the code, I literally had to change one line)
 def aStarSearch(problem, heuristic=nullHeuristic):
-    """Search the node that has thpython3.7 autografer.pye lowest combined cost and heuristic first."""
+    """Search the node that has the autograder.py lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
     nodeZero = problem.getStartState()
     problem.visitedNodes = []
+    problem.optimalNode = []
 
     pq = util.PriorityQueue()
     goalHasBeenFound = False 
@@ -308,9 +309,12 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 
         #pattern match the node popped from the queue
         currentNode, action, stepCost = pq.pop()
+        problem.currentNode = currentNode
+
         if currentNode not in problem.visitedNodes:
             problem.visitedNodes.append(currentNode)
 
+            #print('problem isGoalState?:' + str(problem.isGoalState(currentNode)))
             if problem.isGoalState(currentNode):
                 #goalHasBeenFound = True 
                 #goal = currentNode
@@ -326,7 +330,8 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                 priority = stepCost + nextCosts 
                 hur = heuristic(successorNodes,problem)
                 pq.push((successorNodes, newAction, priority),priority + hur)
-    util.raiseNotDefined()
+
+    # util.raiseNotDefined()
 
 
 # Abbreviations
