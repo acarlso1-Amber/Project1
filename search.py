@@ -325,11 +325,15 @@ def aStarSearch(problem, heuristic=nullHeuristic):
             #pattern matching within for block 
 
             for successorNodes, actions, nextCosts in problem.getSuccessors(currentNode):
-                newAction = action + [actions]
-                #modified priority for how A* works, think this is correct
-                priority = stepCost + nextCosts 
-                hur = heuristic(successorNodes,problem)
-                pq.push((successorNodes, newAction, priority),priority + hur)
+                if stepCost+1 < nextCosts:
+                    newAction = action + [actions]
+                    #modified priority for how A* works, think this is correct
+                    priority = stepCost + 1  
+                    hur = heuristic(successorNodes,problem)
+                    # print("hur type")
+                    # print(type(hur))
+                    nextMove = (successorNodes, newAction, priority)
+                    pq.update((successorNodes, newAction, priority),priority + hur)
     util.raiseNotDefined()
 
 
